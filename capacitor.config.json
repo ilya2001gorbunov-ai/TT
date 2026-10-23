@@ -1,0 +1,6 @@
+{
+  "appId": "app.klip.demo",
+  "appName": "Клип",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

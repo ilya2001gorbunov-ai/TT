@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Клип — короткие видео</title>
+<style>
+:root{color-scheme:dark;--bg:#0e0b14;--s:#1b1626;--s2:#262032;--t:#f6f3fb;--m:#9d94b0;--a:#ff3d6e;--b:#3de0c8;--g:#ffc83d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{position:relative;height:100%;max-width:480px;margin:0 auto;background:#000}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+#feed{height:calc(100% - 56px);overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
+#feed::-webkit-scrollbar{display:none}
+.v{position:relative;height:100%;scroll-snap-align:start;overflow:hidden}
+.bg{position:absolute;inset:-20%;background-size:200% 200%;animation:flow 8s ease-in-out infinite alternate}
+.paused .bg,.paused .big{animation-play-state:paused}
+@keyframes flow{to{background-position:100% 100%;transform:rotate(6deg) scale(1.1)}}
+@keyframes bob{50%{transform:translate(-50%,-56%) scale(1.08)}}
+.big{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-size:120px;animation:bob 3s ease-in-out infinite}
+.shade{position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.7))}
+.info{position:absolute;left:14px;right:84px;bottom:18px}
+.info b{font-size:17px}
+.info p{margin-top:6px;font-size:14px;line-height:1.35}
+.rate-chip{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:2px 8px;border-radius:99px;background:rgba(0,0,0,.45);font-size:13px;color:var(--g)}
+.side{position:absolute;right:10px;bottom:24px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.side button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;min-width:48px}
+.ic{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.4);display:grid;place-items:center;font-size:22px}
+.on .ic{background:var(--a)}
+.av{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:26px;border:2px solid #fff}
+nav{position:absolute;left:0;right:0;bottom:0;height:56px;display:flex;background:#000;border-top:1px solid var(--s2)}
+nav button{flex:1;font-size:13px;color:var(--m)}
+nav button.cur{color:var(--t);font-weight:700}
+.page{position:absolute;inset:0;bottom:56px;background:var(--bg);overflow-y:auto;padding:16px;display:none}
+.page.show{display:block}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.top button{font-size:22px;padding:4px 10px}
+.hd{text-align:center;padding:8px 0 16px}
+.hd .av{width:92px;height:92px;font-size:48px;margin:0 auto 10px}
+.hd h2{font-size:22px}.hd small{color:var(--m)}
+.score{display:inline-flex;align-items:baseline;gap:8px;margin:12px 0 4px;padding:10px 16px;border-radius:14px;background:var(--s)}
+.score strong{font-size:32px;color:var(--g)}
+.stars{color:var(--g);letter-spacing:2px}
+.row{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.btn{padding:11px 18px;border-radius:10px;background:var(--s2);font-weight:600}
+.btn.p{background:var(--a)}
+.btn.g{background:var(--b);color:#062b26}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:18px}
+.grid div{aspect-ratio:3/4;border-radius:6px;display:grid;place-items:center;font-size:34px;position:relative}
+.grid span{position:absolute;bottom:4px;left:6px;font-size:11px}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;z-index:5}
+.modal.show{display:flex}
+.sheet{width:100%;background:var(--s);border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin-bottom:6px}
+.sheet p{color:var(--m);font-size:14px;margin-bottom:12px;line-height:1.4}
+.pick{display:flex;justify-content:center;gap:6px;font-size:40px;margin:10px 0 16px}
+.pick button{color:var(--s2);line-height:1}.pick button.f{color:var(--g)}
+textarea{width:100%;height:96px;border-radius:10px;background:var(--s2);border:0;color:var(--t);padding:10px;font:inherit;resize:none}
+.chat{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.msg{max-width:80%;padding:9px 12px;border-radius:14px;font-size:14px;line-height:1.35}
+.me{align-self:flex-end;background:var(--a)}.th{align-self:flex-start;background:var(--s2)}
+.item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;background:var(--s);margin-bottom:8px;width:100%;text-align:left}
+.item .av{width:44px;height:44px;font-size:22px;border:0;flex:none}
+.item small{color:var(--m);display:block;margin-top:2px}
+.toast{position:absolute;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--t);color:#111;padding:9px 16px;border-radius:99px;font-size:14px;z-index:9;display:none}
+.note{font-size:12px;color:var(--m);margin-top:8px;text-align:center}
+.av img{width:100%;height:100%;border-radius:50%;object-fit:cover}.vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.mapbox{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:#142033;margin-bottom:14px}.mapbox svg{position:absolute;inset:0;width:100%;height:100%}.pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center}.pin .av{width:44px;height:44px;font-size:22px;overflow:hidden}.pin i{font-style:normal;font-size:11px;background:var(--g);color:#222;border-radius:99px;padding:1px 6px;margin-top:-8px;font-weight:700;position:relative}.gifts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.gift{display:block;background:var(--s);border-radius:12px;padding:10px 4px;text-align:center}.gift span{font-size:34px;display:block}.gift small{color:var(--m);font-size:12px}.in{width:100%;margin-bottom:8px;border-radius:10px;background:var(--s2);border:0;color:var(--t);padding:11px;font:inherit}.av{overflow:hidden}@media (prefers-reduced-motion:reduce){.bg,.big{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="feed"></div>
+  <div class="page" id="profile"></div>
+  <div class="page" id="inbox"></div><div class="page" id="map"></div>
+  <nav><button id="nf" class="cur" data-act="tab" data-t="feed">Лента</button><button id="nm" data-act="tab" data-t="map">Карта</button><button data-act="upl" style="font-size:26px;color:var(--a)" aria-label="Добавить видео">＋</button><button id="ni" data-act="tab" data-t="inbox">Чаты</button><button data-act="prof" data-a="4">Профиль</button></nav>
+  <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+<script>
+var A=[
+{id:0,name:"Мира Лисицына",h:"@mira.lis",e:"🦊",bio:"Танцы и закулисье. Отвечаю на личные сообщения каждый день.",price:150,r:[43,9],g:"linear-gradient(135deg,#ff3d6e,#7b2ff7,#ff9a3d)"},
+{id:1,name:"Тимур Каменев",h:"@timur.cook",e:"🍜",bio:"Готовлю за 60 секунд. Рецепты по запросу.",price:99,r:[88,20],g:"linear-gradient(135deg,#f9a825,#e53935,#6a1b9a)"},
+{id:2,name:"Ева Север",h:"@eva.north",e:"🏔",bio:"Путешествия на край карты. Советы по маршрутам в личке.",price:250,r:[27,6],g:"linear-gradient(135deg,#00bfa5,#1565c0,#311b92)"},
+{id:3,name:"Дима Код",h:"@dima.code",e:"💻",bio:"Программирование без воды. Разбор вашего кода — платно.",price:300,r:[70,16],g:"linear-gradient(135deg,#43a047,#00838f,#1a237e)"}
+];
+var X=[{x:30,y:38,d:"0,4 км",gf:[["🌹","@sasha_k"],["🧸","@lena.v"],["👑","@nik0"]]},{x:62,y:28,d:"0,9 км",gf:[["🍰","@fan_ramen"]]},{x:74,y:68,d:"1,6 км",gf:[]},{x:22,y:72,d:"2,3 км",gf:[["🚀","@dev_anna"],["💎","@kir"]]}];A.forEach(function(a,i){a.x=X[i].x;a.y=X[i].y;a.d=X[i].d;a.gf=X[i].gf});A.push({id:4,name:"Вы",h:"@you",e:"🙂",bio:"Расскажите о себе",price:100,r:[0,0],g:"linear-gradient(135deg,#7b2ff7,#3de0c8)",gf:[],x:50,y:50,d:"0 км",me:1});
+var V=[[0,"Новая связка за 15 секунд 💃","#танцы",12400,310],[1,"Рамен из того, что есть дома","#еда",30200,880],[2,"Рассвет на плато Путорана","#путешествия",8100,150],[3,"Три ошибки новичка в Python","#код",19800,540],[0,"Репетиция перед выступлением","#закулисье",9700,205],[1,"Лёгкий десерт без духовки","#еда",15300,402],[3,"Как читать чужой код быстрее","#код",11200,260]];
+var E=["🔥","🍳","🌄","🧠","✨","🍰","🔍"];
+var S={mine:{},fol:{},like:{},chats:{}};
+try{var sv=localStorage.getItem("klip");if(sv)S=JSON.parse(sv)}catch(e){}
+function save(){try{localStorage.setItem("klip",JSON.stringify(S))}catch(e){}}
+if(S.meP)Object.assign(A[4],S.meP);if(S.gs)for(var k in S.gs)A[k].gf=S.gs[k];
+function $(i){return document.getElementById(i)}
+function avg(a){return a.r[1]?a.r[0]/a.r[1]:0}function rt(a){return a.r[1]?avg(a).toFixed(1).replace(".",","):"—"}function avh(a){return a.img?'<img alt="" src="'+a.img+'">':a.e}
+function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".",",")+" тыс.":n}
+function stars(x){var s="";for(var i=1;i<=5;i++)s+=x>=i-.25?"★":"☆";return s}
+function toast(t){var o=$("toast");o.textContent=t;o.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(function(){o.style.display="none"},2200)}
+
+function feed(){
+  $("feed").innerHTML=V.map(function(v,i){var a=A[v[0]];var lk=S.like[i];
+  return '<section class="v" data-i="'+i+'">'+(v[5]?'<video class="vid" src="'+v[5]+'" loop muted autoplay playsinline></video>':'<div class="bg" style="background-image:'+a.g+'"></div><div class="big">'+E[i]+'</div>')+'<div class="shade" data-act="pause"></div>'+
+  '<div class="side">'+
+  '<button data-act="prof" data-a="'+a.id+'" aria-label="Профиль автора"><span class="av" style="background:'+a.g+'">'+avh(a)+'</span></button>'+
+  '<button class="'+(lk?"on":"")+'" data-act="like" data-i="'+i+'"><span class="ic">♥</span><span>'+fmt(v[3]+(lk?1:0))+'</span></button>'+
+  '<button data-act="rate" data-a="'+a.id+'"><span class="ic" style="color:var(--g)">★</span><span>'+rt(a)+'</span></button>'+
+  '<button data-act="pay" data-a="'+a.id+'"><span class="ic">✉</span><span>'+a.price+' ₽</span></button>'+
+  '</div><div class="info"><b>'+a.h+'</b><span class="rate-chip">★ '+rt(a)+'</span><p>'+v[1]+' <span style="color:var(--b)">'+v[2]+'</span></p></div></section>'}).join("")
+}
+
+function profile(id){
+  var a=A[id],my=S.mine[id],f=S.fol[id];
+  $("profile").innerHTML='<div class="top"><button data-act="back" aria-label="Назад">←</button><b>'+a.h+'</b></div>'+
+  '<div class="hd"><div class="av" style="background:'+a.g+'">'+avh(a)+'</div><h2>'+a.name+'</h2><small>'+a.bio+'</small><br>'+
+  '<div class="score"><strong>'+rt(a)+'</strong><span class="stars">'+stars(avg(a))+'</span><small>'+a.r[1]+' оценок</small></div>'+
+  (my?'<div class="note">Ваша оценка: '+my+' ★</div>':'')+
+  (a.me?'<div class="row"><button class="btn p" data-act="edit">Редактировать профиль</button><button class="btn g" data-act="upl">Добавить видео</button></div></div>':'<div class="row"><button class="btn '+(f?'':'p')+'" data-act="fol" data-a="'+id+'">'+(f?"Вы подписаны":"Подписаться")+'</button>'+
+  '<button class="btn" data-act="rate" data-a="'+id+'">'+(my?"Изменить оценку":"Оценить автора")+'</button>'+
+  '<button class="btn g" data-act="pay" data-a="'+id+'">Написать · '+a.price+' ₽</button><button class="btn" data-act="gift" data-a="'+id+'">Подарок 🎁</button></div></div>')+
+  '<h3 style="margin:18px 0 8px">Витрина подарков</h3><div class="gifts">'+(a.gf.length?a.gf.map(function(g){return '<div class="gift"><span>'+g[0]+'</span><small>от '+g[1]+'</small></div>'}).join(""):'<p class="note" style="grid-column:1/-1">Пока нет подарков</p>')+'</div><div class="grid">'+V.map(function(v,i){return v[0]==id?'<div style="background:'+a.g+'">'+E[i]+'<span>♥ '+fmt(v[3])+'</span></div>':''}).join("")+'</div>';
+  show("profile")
+}
+
+function show(p){
+  ["profile","inbox","map"].forEach(function(x){$(x).classList.toggle("show",x==p)});
+  [["nf","feed"],["nm","map"],["ni","inbox"]].forEach(function(z){$(z[0]).classList.toggle("cur",p==z[1])})
+}
+function inbox(){
+  var ids=Object.keys(S.chats);
+  $("inbox").innerHTML='<h2 style="margin-bottom:14px">Сообщения</h2>'+(ids.length?ids.map(function(i){var c=S.chats[i],a=A[i];return '<button class="item" data-act="chat" data-a="'+i+'"><span class="av" style="background:'+a.g+'">'+a.e+'</span><span><b>'+a.name+'</b><small>'+c[c.length-1].t.slice(0,48)+'</small></span></button>'}).join(""):'<p style="color:var(--m)">Пока пусто. Откройте профиль автора и нажмите «Написать» — сообщение отправится после оплаты.</p>')
+}
+function open(h){$("sheet").innerHTML=h;$("modal").classList.add("show")}
+function close(){$("modal").classList.remove("show")}
+
+var pick=0;
+function rateSheet(id){
+  var a=A[id];pick=S.mine[id]||0;
+  open('<h3>Оценить '+a.h+'</h3><p>Оценка влияет на рейтинг в профиле автора. Её можно изменить позже.</p><div class="pick" id="pk">'+[1,2,3,4,5].map(function(n){return '<button data-act="star" data-n="'+n+'" class="'+(n<=pick?"f":"")+'" aria-label="'+n+' из 5">★</button>'}).join("")+'</div><div class="row"><button class="btn" data-act="close">Отмена</button><button class="btn p" data-act="sendrate" data-a="'+id+'">Сохранить</button></div>')
+}
+function paySheet(id){
+  var a=A[id];
+  open('<h3>Сообщение для '+a.h+'</h3><p>Автор получит ваше сообщение и ответит в чате. Стоимость — '+a.price+' ₽ за сообщение.</p><textarea id="mt" maxlength="500" placeholder="Напишите, что хотите спросить"></textarea><div class="row"><button class="btn" data-act="close">Отмена</button><button class="btn g" data-act="send" data-a="'+id+'">Оплатить '+a.price+' ₽ и отправить</button></div><div class="note">Демо-режим: деньги не списываются, платёжная система не подключена.</div>')
+}
+function chat(id){
+  var a=A[id],c=S.chats[id]||[];
+  open('<h3>'+a.name+'</h3><div class="chat">'+c.map(function(m){return '<div class="msg '+(m.me?"me":"th")+'">'+m.t.replace(/</g,"&lt;")+'</div>'}).join("")+'</div><div class="row"><button class="btn" data-act="close">Закрыть</button><button class="btn g" data-act="pay" data-a="'+id+'">Ещё · '+a.price+' ₽</button></div>')
+}
+
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;
+  var act=b.dataset.act,a=b.dataset.a!=null?+b.dataset.a:null;
+  if(act=="pause")$("feed").classList.toggle("paused");
+  else if(act=="like"){var i=+b.dataset.i;S.like[i]=!S.like[i];save();var y=$("feed").scrollTop;feed();$("feed").scrollTop=y}
+  else if(act=="prof")profile(a);
+  else if(act=="back")show("feed");
+  else if(act=="tab"){var t=b.dataset.t;t=="feed"?show("feed"):t=="map"?(map(),show("map")):(inbox(),show("inbox"))}
+  else if(act=="fol"){S.fol[a]=!S.fol[a];save();profile(a)}
+  else if(act=="rate")rateSheet(a);
+  else if(act=="star"){pick=+b.dataset.n;[].forEach.call($("pk").children,function(x,k){x.classList.toggle("f",k<pick)})}
+  else if(act=="sendrate"){
+    if(!pick){toast("Выберите оценку");return}
+    var au=A[a],old=S.mine[a];
+    if(old){au.r[0]+=pick-old}else{au.r[0]+=pick;au.r[1]+=1}
+    S.mine[a]=pick;save();close();toast("Оценка сохранена: "+pick+" ★");
+    var y=$("feed").scrollTop;feed();$("feed").scrollTop=y;
+    if($("profile").classList.contains("show"))profile(a)
+  }
+  else if(act=="pay")paySheet(a);
+  else if(act=="send"){
+    var t=$("mt").value.trim();if(!t){toast("Введите сообщение");return}
+    (S.chats[a]=S.chats[a]||[]).push({me:1,t:t});save();close();toast("Оплачено "+A[a].price+" ₽. Сообщение отправлено");
+    setTimeout(function(){S.chats[a].push({me:0,t:"Привет! Спасибо за сообщение, скоро отвечу подробно 🙌"});save();if($("inbox").classList.contains("show"))inbox()},2500)
+  }
+  else if(act=="chat")chat(a);
+  else if(act=="upl"){open('<h3>Новое видео</h3><p>Выберите ролик на устройстве и добавьте подпись. Видео хранится до перезагрузки страницы.</p><input class="in" type="file" id="vf" accept="video/*"><textarea id="vc" maxlength="150" placeholder="Подпись и #хештеги"></textarea><div class="row"><button class="btn" data-act="close">Отмена</button><button class="btn p" data-act="pubv">Опубликовать</button></div>')}
+  else if(act=="pubv"){var fl=$("vf").files[0];if(!fl){toast("Выберите видео");return}V.push([4,$("vc").value.trim()||"Моё видео","",0,0,URL.createObjectURL(fl)]);E.push("🎬");close();feed();show("feed");$("feed").scrollTop=$("feed").scrollHeight;toast("Видео опубликовано")}
+  else if(act=="edit"){var m=A[4];open('<h3>Редактировать профиль</h3><input class="in" id="en" maxlength="30" placeholder="Имя"><input class="in" id="eh" maxlength="20" placeholder="@ник"><textarea id="eb" maxlength="150" placeholder="О себе"></textarea><p style="margin:10px 0 6px">Аватарка</p><input class="in" type="file" id="ef" accept="image/*"><div class="row"><button class="btn" data-act="close">Отмена</button><button class="btn p" data-act="saveedit">Сохранить</button></div>');$("en").value=m.name;$("eh").value=m.h;$("eb").value=m.bio}
+  else if(act=="saveedit"){var m=A[4];m.name=$("en").value.trim()||m.name;var hh=$("eh").value.trim().replace(/^@*/,"@");m.h=hh.length>1?hh:m.h;m.bio=$("eb").value.trim();var ff=$("ef").files[0];var fin=function(){S.meP={name:m.name,h:m.h,bio:m.bio,img:m.img};save();close();profile(4);feed()};ff?resize(ff,function(u){m.img=u;fin()}):fin()}
+  else if(act=="gift"){open('<h3>Подарок для '+A[a].h+'</h3><p>Ваш ник появится на витрине подарков в профиле автора.</p><div class="gifts">'+[["🌹",50],["🧸",120],["👑",300],["🚀",500]].map(function(g){return '<button class="gift" data-act="sendgift" data-a="'+a+'" data-g="'+g[0]+'"><span>'+g[0]+'</span><small>'+g[1]+' ₽</small></button>'}).join("")+'</div><div class="note">Демо-режим: оплата не списывается.</div>')}
+  else if(act=="sendgift"){A[a].gf.unshift([b.dataset.g,A[4].h]);S.gs=S.gs||{};S.gs[a]=A[a].gf;save();close();toast("Подарок отправлен");profile(a)}
+  else if(act=="close")close();
+});
+$("modal").addEventListener("click",function(e){if(e.target==this)close()});
+function resize(f,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement("canvas");c.width=c.height=160;var s=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,160,160);cb(c.toDataURL("image/jpeg",.8))};im.src=r.result};r.readAsDataURL(f)}
+var MS='<svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 62Q30 50 50 62T100 55" stroke="#1d4f7a" stroke-width="6" fill="none"/><rect x="60" y="6" width="28" height="16" rx="3" fill="#1b3a2c"/><path d="M0 30H100M0 84H100M20 0V100M70 0V100M0 0L100 100" stroke="#2a3b57" stroke-width="1.4" fill="none"/></svg>';
+function map(){$("map").innerHTML='<h2 style="margin-bottom:4px">Рядом с вами</h2><p class="note" style="text-align:left;margin:0 0 12px">Демо-карта с тестовыми координатами. Google Maps подключается в APK или на вашем хостинге с API-ключом.</p><div class="mapbox">'+MS+A.map(function(a){return '<button class="pin" style="left:'+a.x+'%;top:'+a.y+'%" data-act="prof" data-a="'+a.id+'" aria-label="'+a.name+'"><span class="av" style="background:'+a.g+'">'+avh(a)+'</span><i>★ '+rt(a)+'</i></button>'}).join("")+'</div>'+A.filter(function(a){return!a.me}).map(function(a){return '<button class="item" data-act="prof" data-a="'+a.id+'"><span class="av" style="background:'+a.g+'">'+avh(a)+'</span><span><b>'+a.name+'</b><small>'+a.d+' от вас · ★ '+rt(a)+'</small></span></button>'}).join("")}
+feed();
+</script>
+</body>
+</html>
